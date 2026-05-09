@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@import "@policyengine/ui-kit/theme.css";
+
 /* PolicyEngine Design System - appv2 colors */
 :root {
   /* Primary Colors - Teal (from PolicyEngine appv2 designTokens) */

@@ -1,3 +1,5 @@
+'use client';
+
 import "./CliffComparisonTable.css";
 
 function CliffComparisonTable({ data, showReforms = false, showSlcsp = false }) {

@@ -1,0 +1,25 @@
+{
+  "household_info": {
+    "age": 45,
+    "location": "Lebanon County, PA",
+    "fpl_percent": 650,
+    "state": "PA",
+    "_stub": "Run `python precompute_cliff_household.py` to regenerate with real PolicyEngine output."
+  },
+  "at_650_fpl": {
+    "income_2025": 0,
+    "income_2026": 0,
+    "slcsp_2025": 0,
+    "slcsp_2026": 0,
+    "ptc_2025_ira": 0,
+    "ptc_2026_ira": 0,
+    "ptc_2026_baseline": 0,
+    "ptc_2026_700fpl": 0
+  },
+  "income_axis": [],
+  "ptc_baseline_2026": [],
+  "ptc_ira_2026": [],
+  "ptc_700fpl_2026": [],
+  "medicaid": [],
+  "chip": []
+}
