@@ -1,3 +1,5 @@
+'use client';
+
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
 import "./ScrollSection.css";

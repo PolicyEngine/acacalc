@@ -1,0 +1,39 @@
+{
+  "_stub": "Run `python precompute_households.py` to regenerate with real PolicyEngine output.",
+  "florida_family": {
+    "household_info": { "_stub": true },
+    "income_axis": [],
+    "ptc_baseline_2026": [],
+    "ptc_ira_2026": [],
+    "ptc_700fpl_2026": [],
+    "medicaid": [],
+    "chip": []
+  },
+  "texas_single": {
+    "household_info": { "_stub": true },
+    "income_axis": [],
+    "ptc_baseline_2026": [],
+    "ptc_ira_2026": [],
+    "ptc_700fpl_2026": [],
+    "medicaid": [],
+    "chip": []
+  },
+  "california_single_parent": {
+    "household_info": { "_stub": true },
+    "income_axis": [],
+    "ptc_baseline_2026": [],
+    "ptc_ira_2026": [],
+    "ptc_700fpl_2026": [],
+    "medicaid": [],
+    "chip": []
+  },
+  "pennsylvania_couple": {
+    "household_info": { "_stub": true },
+    "income_axis": [],
+    "ptc_baseline_2026": [],
+    "ptc_ira_2026": [],
+    "ptc_700fpl_2026": [],
+    "medicaid": [],
+    "chip": []
+  }
+}

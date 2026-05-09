@@ -1,3 +1,5 @@
+'use client';
+
 import "./HouseholdSelector.css";
 
 function HouseholdSelector({ households, selected, onSelect }) {

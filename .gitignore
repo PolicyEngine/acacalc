@@ -45,10 +45,27 @@ Thumbs.db
 *.log
 
 # Data/cache
-data/
 .cache/
+# data/ is gitignored except for the stub fixtures committed for build/CI.
+data/*
+!data/households
+data/households/*
+!data/households/cliff_demo.json
+!data/households/all_households.json
 
 # Node.js / React
 node_modules/
 dist/
 .vite/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# Env
+.env*.local
