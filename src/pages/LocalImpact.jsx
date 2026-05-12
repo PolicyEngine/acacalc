@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import countiesByState from "../../counties.json";
 import StatePremiumMap from "../components/StatePremiumMap";
-import cliffDemoData from "../data/households/cliff_demo.json";
 import {
   formatCurrency,
   formatNumber,
@@ -47,9 +46,6 @@ function Metric({ label, value, detail }) {
 function LocalImpact() {
   const [state, setState] = useState(DEFAULT_STATE);
   const [county, setCounty] = useState(DEFAULT_COUNTY);
-  const [subsidyLoss, setSubsidyLoss] = useState(
-    Math.round(cliffDemoData.at_650_fpl.cliff_loss_annual),
-  );
 
   const stateOptions = useMemo(
     () => Object.keys(countiesByState).sort(),
@@ -65,8 +61,6 @@ function LocalImpact() {
     [state, selectedCounty],
   );
 
-  const demoLoss = Math.round(cliffDemoData.at_650_fpl.cliff_loss_annual);
-  const hasSubsidyLoss = Number(subsidyLoss) > 0;
   const location = `${selectedCounty}, ${state}`;
 
   const selectState = (nextState) => {
@@ -78,30 +72,14 @@ function LocalImpact() {
     selectState(event.target.value);
   };
 
-  const pairedImpactText = () => {
-    if (!hasSubsidyLoss) {
-      return "Enter a household subsidy loss from the calculator to pair it with local enrollment scale.";
-    }
-
-    if (context.countyContextAvailable) {
-      return `${formatCurrency(subsidyLoss)} in modeled annual household subsidy loss sits alongside ${formatNumber(context.marketplace_plan_selections)} marketplace consumers who selected plans in ${location}; fine-grained enrollment context is available here.`;
-    }
-
-    if (context.fineGrainedCmsAvailable) {
-      return `${formatCurrency(subsidyLoss)} in modeled annual household subsidy loss can be paired with county enrollment context once this geography is added to the compact CMS dataset.`;
-    }
-
-    return `${formatCurrency(subsidyLoss)} in modeled annual household subsidy loss is shown with a fallback note because fine-grained CMS county/ZIP enrollment context is unavailable for ${state}.`;
-  };
-
   return (
     <main className="local-impact-page">
       <section className="local-impact-heading">
         <p className="eyebrow">Local impact</p>
-        <h2>Pair household subsidy changes with Marketplace enrollment scale</h2>
+        <h2>Explore Marketplace enrollment and premium context</h2>
         <p>
-          Select a geography, then connect the calculator's household-level
-          subsidy loss to CMS Marketplace enrollment context.
+          Select a geography, then compare CMS Marketplace enrollment context
+          with state-level average premium patterns.
         </p>
       </section>
 
@@ -198,37 +176,6 @@ function LocalImpact() {
           onSelectState={selectState}
           selectedState={state}
         />
-
-        <div className="local-panel local-impact-panel">
-          <div className="local-panel-header">
-            <h3>Household impact pairing</h3>
-          </div>
-
-          <label className="local-field">
-            <span>Annual household subsidy loss</span>
-            <input
-              type="number"
-              min="0"
-              step="100"
-              value={subsidyLoss}
-              onChange={(event) => setSubsidyLoss(event.target.value)}
-            />
-          </label>
-
-          <div className="local-impact-actions">
-            <button type="button" onClick={() => setSubsidyLoss(demoLoss)}>
-              Use demo result
-            </button>
-            <span>
-              Demo: {formatCurrency(demoLoss)}/year from the existing cliff
-              household fixture
-            </span>
-          </div>
-
-          <div className="local-impact-copy">
-            <p>{pairedImpactText()}</p>
-          </div>
-        </div>
       </section>
     </main>
   );

@@ -44,10 +44,6 @@
   padding: var(--pe-space-lg);
 }
 
-.local-impact-panel {
-  grid-column: 1 / -1;
-}
-
 .local-map-panel {
   grid-column: 1 / -1;
 }
@@ -161,9 +157,7 @@
 
 .local-platform-summary p,
 .local-message,
-.local-fallback p,
-.local-impact-actions span,
-.local-impact-copy p {
+.local-fallback p {
   color: var(--pe-text-secondary);
   font-size: 0.92rem;
 }
@@ -204,41 +198,6 @@
 
 .local-fallback strong {
   color: var(--pe-gray-900);
-}
-
-.local-impact-actions {
-  align-items: center;
-  display: flex;
-  gap: var(--pe-space-md);
-  margin: calc(var(--pe-space-sm) * -1) 0 var(--pe-space-md);
-}
-
-.local-impact-actions button {
-  background: var(--pe-accent);
-  border: 1px solid var(--pe-accent);
-  border-radius: var(--pe-radius-md);
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.88rem;
-  font-weight: 700;
-  padding: 8px 14px;
-  transition: background var(--pe-transition-fast);
-}
-
-.local-impact-actions button:hover {
-  background: var(--pe-accent-hover);
-}
-
-.local-impact-copy {
-  background: var(--pe-blue-50);
-  border: 1px solid var(--pe-blue-100);
-  border-radius: var(--pe-radius-md);
-  padding: var(--pe-space-md);
-}
-
-.local-impact-copy p {
-  margin: 0;
 }
 
 .premium-map-grid {
@@ -385,11 +344,6 @@
 
   .local-metric-grid {
     grid-template-columns: 1fr;
-  }
-
-  .local-impact-actions {
-    align-items: flex-start;
-    flex-direction: column;
   }
 
   .premium-map-footer {
