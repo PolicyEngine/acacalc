@@ -5,10 +5,11 @@ import CliffComparisonTable from "./components/CliffComparisonTable";
 import ContributionScheduleTable from "./components/ContributionScheduleTable";
 import ContributionScheduleChart from "./components/ContributionScheduleChart";
 import HouseholdExplorer from "./components/HouseholdExplorer";
+import LocalImpact from "./pages/LocalImpact";
 import "./App.css";
 
 // Import precomputed household data
-import cliffDemoData from "../data/households/cliff_demo.json";
+import cliffDemoData from "./data/households/cliff_demo.json";
 
 // Scroll sections content - background first, then household example, then health programs, then reforms
 const SECTIONS = [
@@ -165,7 +166,7 @@ Click below to explore how four different households are affected—with details
 
 function App() {
   const [activeSection, setActiveSection] = useState(0);
-  const [currentPage, setCurrentPage] = useState("main"); // "main", "households", or "calculator"
+  const [currentPage, setCurrentPage] = useState("main");
   const chartRef = useRef(null);
 
   // Get current section
@@ -249,6 +250,8 @@ function App() {
     </main>
   );
 
+  const renderLocalImpactPage = () => <LocalImpact />;
+
   return (
     <div className="app">
       <header className="header">
@@ -270,12 +273,19 @@ function App() {
             >
               Explore Households
             </button>
+            <button
+              className={`page-tab ${currentPage === "local" ? "active" : ""}`}
+              onClick={() => setCurrentPage("local")}
+            >
+              Local Impact
+            </button>
           </div>
         </div>
       </header>
 
       {currentPage === "main" && renderMainPage()}
       {currentPage === "households" && renderHouseholdsPage()}
+      {currentPage === "local" && renderLocalImpactPage()}
 
       <footer className="footer">
         <p>

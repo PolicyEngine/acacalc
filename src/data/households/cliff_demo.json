@@ -1,0 +1,39 @@
+{
+  "household_key": "cliff_demo",
+  "household_info": {
+    "name": "Pennsylvania Single Adult",
+    "shortName": "PA Demo",
+    "description": "Single adult (45) in Lebanon County, PA at 650% FPL",
+    "location": "Lebanon County, PA",
+    "age": 45,
+    "state": "PA",
+    "county": "Lebanon County",
+    "fpl_percent": 650,
+    "isExpansion": true
+  },
+  "fpl_2025": 15060,
+  "fpl_2026": 16031,
+  "income": [0, 16031, 32062, 64124, 104200, 128248, 160000],
+  "medicaid": [8500, 7500, 0, 0, 0, 0, 0],
+  "chip": [0, 0, 0, 0, 0, 0, 0],
+  "ptc_baseline": [0, 11500, 9500, 6000, 0, 0, 0],
+  "ptc_ira": [0, 12036, 10400, 7200, 3180, 2400, 0],
+  "ptc_700fpl": [0, 12036, 10100, 6900, 2676, 1600, 0],
+  "slcsp": [12036, 12036, 12036, 12036, 12036, 12036, 12036],
+  "fpl": 16031,
+  "at_650_fpl": {
+    "income_2025": 97900,
+    "income_2026": 104200,
+    "ptc_2025_ira": 2904,
+    "slcsp_2025": 11556,
+    "ptc_2026_baseline": 0,
+    "ptc_2026_ira": 3180,
+    "ptc_2026_700fpl": 2676,
+    "slcsp_2026": 12036,
+    "cliff_loss_annual": 2904,
+    "cliff_loss_monthly": 242
+  },
+  "income_2025": [0, 15060, 30120, 60240, 97900, 120480, 150000],
+  "ptc_2025": [0, 11556, 10000, 6800, 2904, 2000, 0],
+  "slcsp_2025": [11556, 11556, 11556, 11556, 11556, 11556, 11556]
+}
