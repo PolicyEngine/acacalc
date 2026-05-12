@@ -1,3 +1,5 @@
+'use client';
+
 import "./ContributionScheduleTable.css";
 
 // ACA contribution schedules by law

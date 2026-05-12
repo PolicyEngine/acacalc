@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef } from "react";
 import HealthBenefitsChart from "./components/HealthBenefitsChart";
 import ScrollSection from "./components/ScrollSection";
