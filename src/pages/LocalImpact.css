@@ -91,7 +91,7 @@
   color: #92400e;
 }
 
-.status-not_in_sample_fixture {
+.status-not_in_compact_dataset {
   background: var(--pe-blue-100);
   color: var(--pe-blue-800);
 }

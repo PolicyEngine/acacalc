@@ -1,19 +1,36 @@
-import enrollmentFixture from "../aca_calc/data/enrollment_context_sample.json";
+import enrollmentFixture from "../aca_calc/data/enrollment_context_2026_counties.json";
 import platformConfig from "../aca_calc/data/marketplace_platforms_2026.json";
 
 const normalizeState = (state) => (state || "").trim().toUpperCase();
 
 const normalizeCounty = (county) => {
-  const normalized = (county || "")
+  let normalized = (county || "")
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
-  return normalized.endsWith(" county")
-    ? normalized.slice(0, -" county".length).trim()
-    : normalized;
+  for (const suffix of [
+    " city and borough",
+    " census area",
+    " municipality",
+    " borough",
+    " county",
+    " parish",
+  ]) {
+    if (normalized.endsWith(suffix)) {
+      normalized = normalized.slice(0, -suffix.length).trim();
+      break;
+    }
+  }
+
+  return normalized;
+};
+
+const countyKeys = (county) => {
+  const normalized = normalizeCounty(county);
+  return [normalized, normalized.replace(/\s+/g, "")];
 };
 
 export const getMarketplacePlatform = (state) => {
@@ -60,20 +77,21 @@ export const getEnrollmentContext = (state, county) => {
     };
   }
 
+  const selectedCountyKeys = new Set(countyKeys(county));
   const record = enrollmentFixture.records.find(
     (item) =>
       normalizeState(item.state) === stateCode &&
-      normalizeCounty(item.county) === normalizeCounty(county),
+      countyKeys(item.county).some((key) => selectedCountyKeys.has(key)),
   );
 
   if (!record) {
     const location = county ? `${county}, ${stateCode}` : stateCode;
     return {
       ...baseContext,
-      status: "not_in_sample_fixture",
+      status: "not_in_compact_dataset",
       fineGrainedCmsAvailable: true,
       countyContextAvailable: false,
-      message: `CMS county/ZIP PUF detail is available for ${stateCode}, but ${location} is not included in this tiny checked-in sample fixture yet.`,
+      message: `CMS county/ZIP PUF detail is available for ${stateCode}, but ${location} is not included in the checked-in compact county dataset yet.`,
     };
   }
 
@@ -84,7 +102,7 @@ export const getEnrollmentContext = (state, county) => {
     status: "county_context_available",
     fineGrainedCmsAvailable: true,
     countyContextAvailable: true,
-    message: `Fine-grained CMS county enrollment context is available for ${record.county}, ${stateCode} in the sample fixture.`,
+    message: `Fine-grained CMS county enrollment context is available for ${record.county}, ${stateCode}.`,
   };
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import countiesByState from "../../counties.json";
 import cliffDemoData from "../data/households/cliff_demo.json";
 import {
@@ -13,10 +13,12 @@ import "./LocalImpact.css";
 const DEFAULT_STATE = "TX";
 const DEFAULT_COUNTY = "Travis County";
 
+const getCountyOptions = (state) => [...(countiesByState[state] || [])].sort();
+
 const statusText = {
   county_context_available: "County context available",
   state_based_marketplace_fallback: "State-level fallback",
-  not_in_sample_fixture: "Available in full PUF",
+  not_in_compact_dataset: "Available in full PUF",
   unknown_state: "Unknown state",
 };
 
@@ -52,25 +54,25 @@ function LocalImpact() {
     () => Object.keys(countiesByState).sort(),
     [],
   );
-  const countyOptions = useMemo(
-    () => [...(countiesByState[state] || [])].sort(),
-    [state],
-  );
-
-  useEffect(() => {
-    if (countyOptions.length > 0 && !countyOptions.includes(county)) {
-      setCounty(countyOptions[0]);
-    }
-  }, [county, countyOptions]);
+  const countyOptions = useMemo(() => getCountyOptions(state), [state]);
+  const selectedCounty = countyOptions.includes(county)
+    ? county
+    : countyOptions[0] || "";
 
   const context = useMemo(
-    () => getEnrollmentContext(state, county),
-    [state, county],
+    () => getEnrollmentContext(state, selectedCounty),
+    [state, selectedCounty],
   );
 
   const demoLoss = Math.round(cliffDemoData.at_650_fpl.cliff_loss_annual);
   const hasSubsidyLoss = Number(subsidyLoss) > 0;
-  const location = `${county}, ${state}`;
+  const location = `${selectedCounty}, ${state}`;
+
+  const handleStateChange = (event) => {
+    const nextState = event.target.value;
+    setState(nextState);
+    setCounty(getCountyOptions(nextState)[0] || "");
+  };
 
   const pairedImpactText = () => {
     if (!hasSubsidyLoss) {
@@ -82,7 +84,7 @@ function LocalImpact() {
     }
 
     if (context.fineGrainedCmsAvailable) {
-      return `${formatCurrency(subsidyLoss)} in modeled annual household subsidy loss can be paired with county enrollment context once the full CMS PUF is ingested; ${location} is not in this sample fixture yet.`;
+      return `${formatCurrency(subsidyLoss)} in modeled annual household subsidy loss can be paired with county enrollment context once this geography is added to the compact CMS dataset.`;
     }
 
     return `${formatCurrency(subsidyLoss)} in modeled annual household subsidy loss is shown with a fallback note because fine-grained CMS county/ZIP enrollment context is unavailable for ${state}.`;
@@ -108,7 +110,7 @@ function LocalImpact() {
 
           <label className="local-field">
             <span>State</span>
-            <select value={state} onChange={(event) => setState(event.target.value)}>
+            <select value={state} onChange={handleStateChange}>
               {stateOptions.map((stateCode) => (
                 <option key={stateCode} value={stateCode}>
                   {getStateLabel(stateCode)}
@@ -120,7 +122,7 @@ function LocalImpact() {
           <label className="local-field">
             <span>County</span>
             <select
-              value={county}
+              value={selectedCounty}
               onChange={(event) => setCounty(event.target.value)}
               disabled={countyOptions.length === 0}
             >
@@ -181,7 +183,7 @@ function LocalImpact() {
               </strong>
               <p>
                 {context.fineGrainedCmsAvailable
-                  ? "This HealthCare.gov state has CMS county/ZIP PUF detail, but the checked-in sample only includes a few counties."
+                  ? "This HealthCare.gov state has CMS county/ZIP PUF detail, but this county is not matched in the compact dataset yet."
                   : "State-based marketplace enrollment detail is reported outside the CMS county/ZIP PUF structure used in this first slice."}
               </p>
             </div>

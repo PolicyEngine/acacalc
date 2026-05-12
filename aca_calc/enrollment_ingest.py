@@ -110,6 +110,37 @@ def load_zip_examples(
     return sorted(examples, key=lambda record: record["zip"])
 
 
+def load_county_fips_mapping(path: str | Path) -> dict[str, str]:
+    """Load a county FIPS to county name mapping.
+
+    Supports the Census national county code file shape
+    (STATE, STATEFP, COUNTYFP, COUNTYNAME, CLASSFP) and simple files with
+    county_fips/county_name columns.
+    """
+    mapping: dict[str, str] = {}
+
+    with Path(path).open(newline="") as f:
+        rows = list(csv.reader(f))
+
+    if not rows:
+        return mapping
+
+    header = rows[0]
+    if {"county_fips", "county_name"}.issubset(header):
+        for values in rows[1:]:
+            row = dict(zip(header, values))
+            mapping[row["county_fips"].strip()] = row["county_name"].strip()
+        return mapping
+
+    census_header = ["STATE", "STATEFP", "COUNTYFP", "COUNTYNAME", "CLASSFP"]
+    data_rows = rows[1:] if header[:5] == census_header else rows
+    for row in data_rows:
+        if len(row) >= 4:
+            mapping[f"{row[1].strip()}{row[2].strip()}"] = row[3].strip()
+
+    return mapping
+
+
 def build_enrollment_context_fixture(
     county_puf_path: str | Path,
     county_fips_to_name: dict[str, str],
@@ -188,6 +219,13 @@ def main(argv: list[str] | None = None) -> None:
         default=[],
         help="County mapping as FIPS=County Name. Can be passed repeatedly.",
     )
+    parser.add_argument(
+        "--county-fips",
+        help=(
+            "CSV mapping county FIPS codes to names. Supports Census "
+            "national_county.txt columns or county_fips/county_name columns."
+        ),
+    )
     parser.add_argument("--zip-puf")
     parser.add_argument(
         "--zip-examples",
@@ -198,9 +236,16 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--year", type=int, default=2026)
     args = parser.parse_args(argv)
 
+    county_mapping = _parse_county_mapping(args.county)
+    if args.county_fips:
+        county_mapping = {
+            **load_county_fips_mapping(args.county_fips),
+            **county_mapping,
+        }
+
     fixture = build_enrollment_context_fixture(
         args.county_puf,
-        _parse_county_mapping(args.county),
+        county_mapping,
         zip_puf_path=args.zip_puf,
         zip_examples_by_county_fips=_parse_zip_mapping(args.zip_examples),
         year=args.year,

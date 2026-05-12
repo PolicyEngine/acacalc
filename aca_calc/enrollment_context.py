@@ -10,7 +10,7 @@ from typing import Any
 
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
-DEFAULT_ENROLLMENT_PATH = DATA_DIR / "enrollment_context_sample.json"
+DEFAULT_ENROLLMENT_PATH = DATA_DIR / "enrollment_context_2026_counties.json"
 DEFAULT_PLATFORM_PATH = DATA_DIR / "marketplace_platforms_2026.json"
 
 
@@ -57,9 +57,9 @@ def load_enrollment_records(
 ) -> dict[str, Any]:
     """Load processed enrollment records.
 
-    The default is a tiny checked-in sample fixture. A future ingestion job can
-    point this function at processed CMS County/ZIP PUF output with the same
-    field names.
+    The default is a checked-in compact county extract generated from CMS
+    County-Level PUF rows. Future ingestion can point this function at a larger
+    processed CMS output with the same field names.
     """
     with Path(path).open() as f:
         return json.load(f)
@@ -73,9 +73,23 @@ def _normalize_county(county: str | None) -> str:
     value = (county or "").strip().casefold()
     value = re.sub(r"[^a-z0-9]+", " ", value)
     value = re.sub(r"\s+", " ", value).strip()
-    if value.endswith(" county"):
-        value = value.removesuffix(" county").strip()
+    for suffix in (
+        " city and borough",
+        " census area",
+        " municipality",
+        " borough",
+        " county",
+        " parish",
+    ):
+        if value.endswith(suffix):
+            value = value.removesuffix(suffix).strip()
+            break
     return value
+
+
+def _county_keys(county: str | None) -> tuple[str, str]:
+    normalized = _normalize_county(county)
+    return normalized, normalized.replace(" ", "")
 
 
 def _platform_for_state(state: str, platforms: dict[str, Any]) -> str:
@@ -87,10 +101,11 @@ def _platform_for_state(state: str, platforms: dict[str, Any]) -> str:
 
 
 def _record_index(records: list[dict[str, Any]]) -> dict[tuple[str, str], dict]:
-    return {
-        (record["state"].upper(), _normalize_county(record["county"])): record
-        for record in records
-    }
+    index = {}
+    for record in records:
+        for county_key in _county_keys(record["county"]):
+            index[(record["state"].upper(), county_key)] = record
+    return index
 
 
 def get_enrollment_context(
@@ -150,7 +165,14 @@ def get_enrollment_context(
         )
 
     index = _record_index(enrollment_data.get("records", []))
-    record = index.get((state_code, _normalize_county(county)))
+    record = next(
+        (
+            index[(state_code, county_key)]
+            for county_key in _county_keys(county)
+            if (state_code, county_key) in index
+        ),
+        None,
+    )
 
     if record is None:
         location = f"{county}, {state_code}" if county else state_code
@@ -158,14 +180,14 @@ def get_enrollment_context(
             year=year,
             state=state_code,
             county=county,
-            status="not_in_sample_fixture",
+            status="not_in_compact_dataset",
             marketplace_platform=platform,
             fine_grained_cms_available=True,
             county_context_available=False,
             message=(
                 f"CMS county/ZIP PUF detail is available for {state_code}, "
-                f"but {location} is not included in this tiny checked-in "
-                "sample fixture yet."
+                f"but {location} is not included in the checked-in compact "
+                "county dataset yet."
             ),
             source=source,
             source_url=source_url,
@@ -181,7 +203,7 @@ def get_enrollment_context(
         county_context_available=True,
         message=(
             f"Fine-grained CMS county enrollment context is available for "
-            f"{record['county']}, {state_code} in the sample fixture."
+            f"{record['county']}, {state_code}."
         ),
         source=source,
         source_url=source_url,

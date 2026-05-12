@@ -4,6 +4,7 @@ import csv
 
 from aca_calc.enrollment_ingest import (
     build_enrollment_context_fixture,
+    load_county_fips_mapping,
     parse_cms_number,
 )
 
@@ -106,3 +107,33 @@ def test_build_enrollment_context_fixture_from_selected_rows(tmp_path):
     assert record["average_aptc"] == 562
     assert record["zip_examples"][0]["zip"] == "78701"
     assert record["zip_examples"][1]["aptc_consumers"] == 8_324
+
+
+def test_load_county_fips_mapping_from_census_shape(tmp_path):
+    county_fips = tmp_path / "national_county.txt"
+    write_csv(
+        county_fips,
+        ["STATE", "STATEFP", "COUNTYFP", "COUNTYNAME", "CLASSFP"],
+        [
+            {
+                "STATE": "TX",
+                "STATEFP": "48",
+                "COUNTYFP": "453",
+                "COUNTYNAME": "Travis County",
+                "CLASSFP": "H1",
+            }
+        ],
+    )
+
+    assert load_county_fips_mapping(county_fips) == {
+        "48453": "Travis County"
+    }
+
+
+def test_load_county_fips_mapping_from_headerless_census_file(tmp_path):
+    county_fips = tmp_path / "national_county.txt"
+    county_fips.write_text("TX,48,453,Travis County,H1\n")
+
+    assert load_county_fips_mapping(county_fips) == {
+        "48453": "Travis County"
+    }
