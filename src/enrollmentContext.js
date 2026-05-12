@@ -33,6 +33,9 @@ const countyKeys = (county) => {
   return [normalized, normalized.replace(/\s+/g, "")];
 };
 
+const roundCurrencyValue = (value) =>
+  Number.isFinite(value) ? Math.round(value) : null;
+
 export const getMarketplacePlatform = (state) => {
   const stateCode = normalizeState(state);
 
@@ -43,6 +46,75 @@ export const getMarketplacePlatform = (state) => {
     return "State-based marketplace";
   }
   return "Unknown";
+};
+
+export const getStatePremiumAverages = () => {
+  const states = [
+    ...platformConfig.healthcare_gov_states,
+    ...platformConfig.state_based_marketplace_states,
+  ].sort();
+
+  const stateTotals = enrollmentFixture.records.reduce((totals, record) => {
+    const stateCode = normalizeState(record.state);
+    const planSelections = Number(record.marketplace_plan_selections) || 0;
+    const averagePremium = Number(record.average_premium);
+    const averagePremiumAfterAptc = Number(record.average_premium_after_aptc);
+
+    if (!totals[stateCode]) {
+      totals[stateCode] = {
+        countyCount: 0,
+        planSelections: 0,
+        premiumPlanSelections: 0,
+        premiumWeight: 0,
+        premiumAfterAptcPlanSelections: 0,
+        premiumAfterAptcWeight: 0,
+      };
+    }
+
+    totals[stateCode].countyCount += 1;
+    totals[stateCode].planSelections += planSelections;
+
+    if (Number.isFinite(averagePremium) && planSelections > 0) {
+      totals[stateCode].premiumPlanSelections += planSelections;
+      totals[stateCode].premiumWeight += averagePremium * planSelections;
+    }
+
+    if (Number.isFinite(averagePremiumAfterAptc) && planSelections > 0) {
+      totals[stateCode].premiumAfterAptcPlanSelections += planSelections;
+      totals[stateCode].premiumAfterAptcWeight +=
+        averagePremiumAfterAptc * planSelections;
+    }
+
+    return totals;
+  }, {});
+
+  return states.map((stateCode) => {
+    const totals = stateTotals[stateCode];
+    const marketplacePlatform = getMarketplacePlatform(stateCode);
+    const hasWeightedPremium = Boolean(totals?.premiumPlanSelections);
+    const hasWeightedPremiumAfterAptc = Boolean(
+      totals?.premiumAfterAptcPlanSelections,
+    );
+    const fineGrainedCmsAvailable = marketplacePlatform === "HealthCare.gov";
+
+    return {
+      state: stateCode,
+      marketplacePlatform,
+      fineGrainedCmsAvailable,
+      premiumContextAvailable: hasWeightedPremium,
+      countyCount: totals?.countyCount || 0,
+      marketplacePlanSelections: totals?.planSelections || null,
+      averagePremium: hasWeightedPremium
+        ? roundCurrencyValue(totals.premiumWeight / totals.premiumPlanSelections)
+        : null,
+      averagePremiumAfterAptc: hasWeightedPremiumAfterAptc
+        ? roundCurrencyValue(
+            totals.premiumAfterAptcWeight /
+              totals.premiumAfterAptcPlanSelections,
+          )
+        : null,
+    };
+  });
 };
 
 export const getEnrollmentContext = (state, county) => {

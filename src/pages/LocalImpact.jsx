@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import countiesByState from "../../counties.json";
+import StatePremiumMap from "../components/StatePremiumMap";
 import cliffDemoData from "../data/households/cliff_demo.json";
 import {
   formatCurrency,
@@ -68,10 +69,13 @@ function LocalImpact() {
   const hasSubsidyLoss = Number(subsidyLoss) > 0;
   const location = `${selectedCounty}, ${state}`;
 
-  const handleStateChange = (event) => {
-    const nextState = event.target.value;
+  const selectState = (nextState) => {
     setState(nextState);
     setCounty(getCountyOptions(nextState)[0] || "");
+  };
+
+  const handleStateChange = (event) => {
+    selectState(event.target.value);
   };
 
   const pairedImpactText = () => {
@@ -189,6 +193,11 @@ function LocalImpact() {
             </div>
           )}
         </div>
+
+        <StatePremiumMap
+          onSelectState={selectState}
+          selectedState={state}
+        />
 
         <div className="local-panel local-impact-panel">
           <div className="local-panel-header">
