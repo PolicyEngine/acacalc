@@ -200,79 +200,83 @@
   color: var(--pe-gray-900);
 }
 
-.premium-map-grid {
-  display: grid;
-  gap: 5px;
-  grid-template-columns: repeat(12, minmax(22px, 1fr));
-  margin-top: var(--pe-space-md);
-  max-width: 860px;
+.cd-map-shell {
+  background: #fff;
+  border: 1px solid var(--pe-border-light);
+  border-radius: var(--pe-radius-md);
+  overflow: hidden;
+  padding: var(--pe-space-md);
 }
 
-.premium-state-tile {
-  align-items: center;
-  aspect-ratio: 1;
-  border: 1px solid rgba(16, 24, 40, 0.16);
-  border-radius: var(--pe-radius-sm);
-  color: var(--pe-gray-900);
+.cd-map-svg {
+  display: block;
+  height: auto;
+  width: 100%;
+}
+
+.cd-district {
   cursor: pointer;
-  display: flex;
-  font: inherit;
-  font-size: 0.72rem;
-  font-weight: 800;
-  justify-content: center;
-  min-width: 0;
-  padding: 0;
+  stroke: #fff;
+  stroke-linejoin: round;
+  stroke-width: 0.7;
   transition:
-    box-shadow var(--pe-transition-fast),
-    transform var(--pe-transition-fast);
+    filter var(--pe-transition-fast),
+    opacity var(--pe-transition-fast),
+    stroke-width var(--pe-transition-fast);
 }
 
-.premium-state-tile:hover {
-  box-shadow: 0 0 0 3px rgba(16, 24, 40, 0.1);
-  transform: translateY(-1px);
+.cd-district:hover,
+.cd-district:focus {
+  filter: brightness(0.92);
+  outline: none;
+  stroke: var(--pe-gray-900);
+  stroke-width: 1.4;
 }
 
-.premium-state-tile.selected {
-  box-shadow:
-    0 0 0 2px #fff,
-    0 0 0 5px var(--pe-gray-900);
+.cd-district.same-state {
+  stroke: var(--pe-gray-700);
+  stroke-width: 1;
 }
 
-.premium-bucket-1 {
+.cd-district.selected {
+  filter: brightness(0.86);
+  stroke: var(--pe-gray-900);
+  stroke-width: 2.2;
+}
+
+.cd-bucket-1 {
   background: #dcfce7;
+  fill: #dcfce7;
 }
 
-.premium-bucket-2 {
+.cd-bucket-2 {
   background: #99f6e4;
+  fill: #99f6e4;
 }
 
-.premium-bucket-3 {
+.cd-bucket-3 {
   background: #bae6fd;
+  fill: #bae6fd;
 }
 
-.premium-bucket-4 {
+.cd-bucket-4 {
   background: #fde68a;
+  fill: #fde68a;
 }
 
-.premium-bucket-5 {
+.cd-bucket-5 {
   background: #fb7185;
-  color: #fff;
+  fill: #fb7185;
 }
 
-.premium-unavailable {
-  background:
-    repeating-linear-gradient(
-      135deg,
-      var(--pe-gray-100) 0,
-      var(--pe-gray-100) 5px,
-      #fff 5px,
-      #fff 10px
-    );
+.cd-unavailable {
+  background: var(--pe-gray-100);
+  fill: var(--pe-gray-100);
   border-style: dashed;
   color: var(--pe-gray-500);
 }
 
-.premium-map-footer {
+.cd-map-footer {
   align-items: flex-start;
   border-top: 1px solid var(--pe-border-light);
   display: flex;
@@ -282,14 +286,14 @@
   padding-top: var(--pe-space-md);
 }
 
-.premium-map-legend {
+.cd-map-legend {
   display: flex;
   flex-wrap: wrap;
   gap: var(--pe-space-sm);
   max-width: 620px;
 }
 
-.premium-legend-item {
+.cd-legend-item {
   align-items: center;
   color: var(--pe-text-secondary);
   display: inline-flex;
@@ -298,7 +302,7 @@
   white-space: nowrap;
 }
 
-.premium-legend-swatch {
+.cd-legend-swatch {
   border: 1px solid rgba(16, 24, 40, 0.16);
   border-radius: 3px;
   display: inline-block;
@@ -306,12 +310,12 @@
   width: 18px;
 }
 
-.premium-map-summary {
+.cd-map-summary {
   max-width: 360px;
   min-width: 260px;
 }
 
-.premium-map-summary span {
+.cd-map-summary span {
   color: var(--pe-text-muted);
   display: block;
   font-size: 0.78rem;
@@ -319,7 +323,7 @@
   text-transform: uppercase;
 }
 
-.premium-map-summary strong {
+.cd-map-summary strong {
   color: var(--pe-gray-900);
   display: block;
   font-size: 1.4rem;
@@ -327,13 +331,13 @@
   margin: 3px 0;
 }
 
-.premium-map-summary p,
-.premium-map-note {
+.cd-map-summary p,
+.cd-map-note {
   color: var(--pe-text-secondary);
   font-size: 0.88rem;
 }
 
-.premium-map-note {
+.cd-map-note {
   margin-top: var(--pe-space-md);
 }
 
@@ -346,21 +350,11 @@
     grid-template-columns: 1fr;
   }
 
-  .premium-map-footer {
+  .cd-map-footer {
     flex-direction: column;
   }
 
-  .premium-map-summary {
+  .cd-map-summary {
     min-width: 0;
-  }
-}
-
-@media (max-width: 520px) {
-  .premium-map-grid {
-    gap: 4px;
-  }
-
-  .premium-state-tile {
-    font-size: 0.62rem;
   }
 }

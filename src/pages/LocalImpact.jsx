@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import countiesByState from "../../counties.json";
-import StatePremiumMap from "../components/StatePremiumMap";
+import CongressionalDistrictPremiumMap from "../components/CongressionalDistrictPremiumMap";
 import {
   formatCurrency,
   formatNumber,
@@ -79,7 +79,7 @@ function LocalImpact() {
         <h2>Explore Marketplace enrollment and premium context</h2>
         <p>
           Select a geography, then compare CMS Marketplace enrollment context
-          with state-level average premium patterns.
+          with congressional district average premium patterns.
         </p>
       </section>
 
@@ -172,7 +172,7 @@ function LocalImpact() {
           )}
         </div>
 
-        <StatePremiumMap
+        <CongressionalDistrictPremiumMap
           onSelectState={selectState}
           selectedState={state}
         />
