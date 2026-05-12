@@ -8,6 +8,7 @@ import ContributionScheduleTable from "./components/ContributionScheduleTable";
 import ContributionScheduleChart from "./components/ContributionScheduleChart";
 import HouseholdExplorer from "./components/HouseholdExplorer";
 import LocalImpact from "./pages/LocalImpact";
+import { CALCULATOR_URL } from "./config/calculatorUrl";
 import "./App.css";
 
 // Import precomputed household data
@@ -281,6 +282,14 @@ function App() {
             >
               Local Impact
             </button>
+            <a
+              className="page-tab"
+              href={CALCULATOR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Full Calculator
+            </a>
           </div>
         </div>
       </header>

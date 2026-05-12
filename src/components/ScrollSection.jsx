@@ -2,16 +2,8 @@
 
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import { CALCULATOR_URL } from "../config/calculatorUrl";
 import "./ScrollSection.css";
-
-const DEFAULT_CALCULATOR_URL =
-  process.env.NODE_ENV === "development"
-    ? "http://localhost:8501"
-    : "https://policyengine-aca-calc.streamlit.app/";
-
-// Calculator URL - uses environment variable or defaults by environment.
-const CALCULATOR_URL =
-  process.env.NEXT_PUBLIC_CALCULATOR_URL || DEFAULT_CALCULATOR_URL;
 
 function ScrollSection({ section, index, isActive, onInView, onExploreHouseholds }) {
   const { ref, inView } = useInView({
