@@ -6,6 +6,7 @@ import {
   formatNumber,
   getEnrollmentContext,
   getMarketplacePlatform,
+  getStateName,
   platformConfig2026,
 } from "../enrollmentContext";
 import "./LocalImpact.css";
@@ -22,15 +23,29 @@ const statusText = {
   unknown_state: "Unknown state",
 };
 
+const sortStatesByName = (states) =>
+  [...states].sort((a, b) => getStateName(a).localeCompare(getStateName(b)));
+
 const getStateLabel = (state) => {
   const platform = getMarketplacePlatform(state);
   if (platform === "HealthCare.gov") {
-    return `${state} - HealthCare.gov county/ZIP PUF`;
+    return `${getStateName(state)} (${state})`;
   }
   if (platform === "State-based marketplace") {
-    return `${state} - state-level/fallback only`;
+    return `${getStateName(state)} (${state})`;
   }
-  return state;
+  return getStateName(state);
+};
+
+const getPlatformDetail = (state) => {
+  const platform = getMarketplacePlatform(state);
+  if (platform === "HealthCare.gov") {
+    return "County and ZIP enrollment PUF detail available";
+  }
+  if (platform === "State-based marketplace") {
+    return "State-level fallback only";
+  }
+  return "Platform unknown";
 };
 
 function Metric({ label, value, detail }) {
@@ -47,8 +62,20 @@ function LocalImpact() {
   const [state, setState] = useState(DEFAULT_STATE);
   const [county, setCounty] = useState(DEFAULT_COUNTY);
 
-  const stateOptions = useMemo(
-    () => Object.keys(countiesByState).sort(),
+  const stateGroups = useMemo(
+    () => ({
+      healthcareGov: sortStatesByName(
+        Object.keys(countiesByState).filter(
+          (stateCode) => getMarketplacePlatform(stateCode) === "HealthCare.gov",
+        ),
+      ),
+      stateBased: sortStatesByName(
+        Object.keys(countiesByState).filter(
+          (stateCode) =>
+            getMarketplacePlatform(stateCode) === "State-based marketplace",
+        ),
+      ),
+    }),
     [],
   );
   const countyOptions = useMemo(() => getCountyOptions(state), [state]);
@@ -61,7 +88,7 @@ function LocalImpact() {
     [state, selectedCounty],
   );
 
-  const location = `${selectedCounty}, ${state}`;
+  const location = `${selectedCounty}, ${getStateName(state)}`;
 
   const selectState = (nextState) => {
     setState(nextState);
@@ -78,8 +105,8 @@ function LocalImpact() {
         <p className="eyebrow">Local impact</p>
         <h2>Explore Marketplace enrollment and premium context</h2>
         <p>
-          Select a geography, then compare CMS Marketplace enrollment context
-          with congressional district average premium patterns.
+          Select a geography, then compare CMS Marketplace enrollment context,
+          average paid premiums, and APTC uptake by congressional district.
         </p>
       </section>
 
@@ -93,13 +120,27 @@ function LocalImpact() {
           <label className="local-field">
             <span>State</span>
             <select value={state} onChange={handleStateChange}>
-              {stateOptions.map((stateCode) => (
-                <option key={stateCode} value={stateCode}>
-                  {getStateLabel(stateCode)}
-                </option>
-              ))}
+              <optgroup label="HealthCare.gov states">
+                {stateGroups.healthcareGov.map((stateCode) => (
+                  <option key={stateCode} value={stateCode}>
+                    {getStateLabel(stateCode)}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="State-based marketplaces">
+                {stateGroups.stateBased.map((stateCode) => (
+                  <option key={stateCode} value={stateCode}>
+                    {getStateLabel(stateCode)}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </label>
+
+          <div className="local-state-caption">
+            <strong>{getStateName(state)}</strong>
+            <span>{getPlatformDetail(state)}</span>
+          </div>
 
           <label className="local-field">
             <span>County</span>
@@ -151,9 +192,9 @@ function LocalImpact() {
                 detail="Among APTC consumers"
               />
               <Metric
-                label="Average premium after APTC"
+                label="Average paid premium"
                 value={`${formatCurrency(context.average_premium_after_aptc)}/mo`}
-                detail={`${formatNumber(context.consumers_premium_after_aptc_lte_10)} at $10 or less`}
+                detail={`${formatNumber(context.consumers_premium_after_aptc_lte_10)} pay $10 or less`}
               />
             </div>
           ) : (

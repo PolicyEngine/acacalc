@@ -2,6 +2,60 @@ import enrollmentFixture from "../aca_calc/data/enrollment_context_2026_counties
 import districtFixture from "../aca_calc/data/enrollment_context_2026_districts.json";
 import platformConfig from "../aca_calc/data/marketplace_platforms_2026.json";
 
+export const STATE_NAMES = {
+  AL: "Alabama",
+  AK: "Alaska",
+  AZ: "Arizona",
+  AR: "Arkansas",
+  CA: "California",
+  CO: "Colorado",
+  CT: "Connecticut",
+  DE: "Delaware",
+  DC: "District of Columbia",
+  FL: "Florida",
+  GA: "Georgia",
+  HI: "Hawaii",
+  ID: "Idaho",
+  IL: "Illinois",
+  IN: "Indiana",
+  IA: "Iowa",
+  KS: "Kansas",
+  KY: "Kentucky",
+  LA: "Louisiana",
+  ME: "Maine",
+  MD: "Maryland",
+  MA: "Massachusetts",
+  MI: "Michigan",
+  MN: "Minnesota",
+  MS: "Mississippi",
+  MO: "Missouri",
+  MT: "Montana",
+  NE: "Nebraska",
+  NV: "Nevada",
+  NH: "New Hampshire",
+  NJ: "New Jersey",
+  NM: "New Mexico",
+  NY: "New York",
+  NC: "North Carolina",
+  ND: "North Dakota",
+  OH: "Ohio",
+  OK: "Oklahoma",
+  OR: "Oregon",
+  PA: "Pennsylvania",
+  RI: "Rhode Island",
+  SC: "South Carolina",
+  SD: "South Dakota",
+  TN: "Tennessee",
+  TX: "Texas",
+  UT: "Utah",
+  VT: "Vermont",
+  VA: "Virginia",
+  WA: "Washington",
+  WV: "West Virginia",
+  WI: "Wisconsin",
+  WY: "Wyoming",
+};
+
 const normalizeState = (state) => (state || "").trim().toUpperCase();
 
 const normalizeCounty = (county) => {
@@ -44,6 +98,11 @@ export const getMarketplacePlatform = (state) => {
     return "State-based marketplace";
   }
   return "Unknown";
+};
+
+export const getStateName = (state) => {
+  const stateCode = normalizeState(state);
+  return STATE_NAMES[stateCode] || stateCode || "Unknown state";
 };
 
 export const getEnrollmentContext = (state, county) => {
@@ -108,11 +167,38 @@ export const getEnrollmentContext = (state, county) => {
 };
 
 export const getCongressionalDistrictPremiumContexts = () =>
-  districtFixture.records.map((record) => ({
-    ...record,
-    marketplacePlatform: getMarketplacePlatform(record.state),
-    premiumContextAvailable: Number.isFinite(Number(record.average_premium)),
-  }));
+  districtFixture.records.map((record) => {
+    const planSelections = Number(record.marketplace_plan_selections);
+    const aptcConsumers = Number(record.aptc_consumers);
+    const nonAptcConsumers =
+      Number.isFinite(planSelections) && Number.isFinite(aptcConsumers)
+        ? Math.max(0, planSelections - aptcConsumers)
+        : null;
+
+    return {
+      ...record,
+      marketplace_plan_selections: Number.isFinite(planSelections)
+        ? planSelections
+        : null,
+      aptc_consumers: Number.isFinite(aptcConsumers) ? aptcConsumers : null,
+      non_aptc_consumers: nonAptcConsumers,
+      average_premium: Number.isFinite(Number(record.average_premium))
+        ? Number(record.average_premium)
+        : null,
+      average_premium_after_aptc: Number.isFinite(
+        Number(record.average_premium_after_aptc),
+      )
+        ? Number(record.average_premium_after_aptc)
+        : null,
+      average_aptc: Number.isFinite(Number(record.average_aptc))
+        ? Number(record.average_aptc)
+        : null,
+      marketplacePlatform: getMarketplacePlatform(record.state),
+      premiumContextAvailable: Number.isFinite(
+        Number(record.average_premium_after_aptc),
+      ),
+    };
+  });
 
 export const formatNumber = (value) =>
   new Intl.NumberFormat("en-US").format(value || 0);
