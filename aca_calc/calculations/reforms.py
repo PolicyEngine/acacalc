@@ -15,25 +15,25 @@ def create_enhanced_ptc_reform():
     """
     return Reform.from_dict(
         {
-            "gov.aca.required_contribution_percentage[0].amount": {
+            "gov.aca.ptc_phase_out_rate[0].amount": {
                 "2026-01-01.2100-12-31": 0
             },
-            "gov.aca.required_contribution_percentage[1].amount": {
+            "gov.aca.ptc_phase_out_rate[1].amount": {
                 "2026-01-01.2100-12-31": 0
             },
-            "gov.aca.required_contribution_percentage[2].amount": {
+            "gov.aca.ptc_phase_out_rate[2].amount": {
                 "2026-01-01.2100-12-31": 0
             },
-            "gov.aca.required_contribution_percentage[3].amount": {
+            "gov.aca.ptc_phase_out_rate[3].amount": {
                 "2026-01-01.2100-12-31": 0.02
             },
-            "gov.aca.required_contribution_percentage[4].amount": {
+            "gov.aca.ptc_phase_out_rate[4].amount": {
                 "2026-01-01.2100-12-31": 0.04
             },
-            "gov.aca.required_contribution_percentage[5].amount": {
+            "gov.aca.ptc_phase_out_rate[5].amount": {
                 "2026-01-01.2100-12-31": 0.06
             },
-            "gov.aca.required_contribution_percentage[6].amount": {
+            "gov.aca.ptc_phase_out_rate[6].amount": {
                 "2026-01-01.2100-12-31": 0.085
             },
             "gov.aca.ptc_income_eligibility[2].amount": {

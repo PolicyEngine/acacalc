@@ -2,43 +2,66 @@
 
 ## Code Structure
 
-### Main Application (`app.py`)
+### React Application
 
-**Key Functions:**
+The user-facing ACA calculator lives in the Next.js/React app:
 
-1. **`calculate_ptc()`** - Core calculation logic
-   - Builds household situation dictionary
-   - Applies reform parameters if requested
-   - Returns PTC and SLCSP values
-   - County format: "Travis County" → "TRAVIS_COUNTY_TX"
+- `app/`: Next.js shell
+- `src/App.jsx`: top-level application routing and tabs
+- `src/components/Calculator.jsx`: calculator orchestration
+- `src/components/CalculatorForm.jsx`: household input form
+- `src/components/CalculatorResults.jsx`: calculator outputs and charts
+- `src/pages/LocalImpact.jsx`: local enrollment and premium context
 
-2. **`create_chart()`** - Visualization
-   - Generates income sweep curves
-   - Shows user's position on curves
-   - Compares baseline vs reform scenarios
+Run it locally with:
 
-3. **`main()`** - Streamlit UI
-   - Handles user inputs
-   - Displays results
-   - Manages session state
+```bash
+npm run dev
+```
+
+The calculator route is `/#calculator`.
+
+### Python Package
+
+Reusable PolicyEngine and data access logic lives in `aca_calc/`:
+
+1. `aca_calc/calculations/ptc.py`
+   - Builds household situations
+   - Applies ACA reform parameters when requested
+   - Returns PTC, SLCSP, FPL, and FPL percentage values
+
+2. `aca_calc/calculations/household.py`
+   - Builds PolicyEngine household dictionaries
+   - Handles spouse, dependent, county, ZIP, and income-axis structure
+
+3. `aca_calc/enrollment_context.py`
+   - Loads checked-in CMS Marketplace enrollment fixtures
+   - Labels HealthCare.gov-platform states versus fallback-only states
+   - Provides county and congressional district local context
 
 ### Data Files
 
-- **`counties.json`**: 3,143 counties across all 50 states + DC
-- **`process_counties.py`**: Updates county data from PolicyEngine
+- `counties.json`: counties across all states plus DC
+- `aca_calc/data/enrollment_context_2026_counties.json`: tiny county fixture
+- `aca_calc/data/enrollment_context_2026_districts.json`: tiny district fixture
+- `aca_calc/data/marketplace_platforms_2026.json`: state Marketplace platform config
+- `process_counties.py`: updates county data from PolicyEngine
 
 ## Testing
 
 ```bash
-# Quick verification test
-python tests/test_reform_verification.py
+npm run lint
+npm run build
+uv run pytest
+```
 
-# Comprehensive tests
-python tests/test_app_comprehensive.py
+For local impact work, the focused Python tests are:
 
-# State-specific tests
-python tests/test_texas.py
-python tests/test_nj.py
+```bash
+uv run pytest \
+  tests/test_enrollment_context.py \
+  tests/test_enrollment_ingest.py \
+  tests/test_congressional_district_ingest.py
 ```
 
 ## PolicyEngine Integration
@@ -49,43 +72,50 @@ python tests/test_nj.py
 situation = {
     "people": {...},
     "families": {...},
-    "spm_units": {...},      # Required!
+    "spm_units": {...},
     "tax_units": {...},
     "households": {...},
-    "marital_units": {...}   # If married/partnered
+    "marital_units": {...},
 }
 ```
 
-**Important**: Always include `spm_units` for accurate ACA calculations.
+Always include `spm_units` for accurate ACA calculations. Add
+`marital_units` when the household includes a spouse or child dependents.
 
 ### Reform Parameters
 
 IRA enhancements modify these PolicyEngine parameters:
+
 ```python
-"gov.aca.ptc_phase_out_rate[0-6].amount"  # Contribution percentages
-"gov.aca.ptc_income_eligibility[2].amount"  # Remove 400% FPL cap
+"gov.aca.ptc_phase_out_rate[0-6].amount"
+"gov.aca.ptc_income_eligibility[2].amount"
 ```
 
 ### County Format
 
-PolicyEngine expects: `COUNTY_NAME_STATE`
-- Examples: `TRAVIS_COUNTY_TX`, `BERGEN_COUNTY_NJ`
-- All caps, underscores instead of spaces
-- State abbreviation suffix
+PolicyEngine expects `COUNTY_NAME_STATE`:
+
+- `TRAVIS_COUNTY_TX`
+- `BERGEN_COUNTY_NJ`
+
+Use all caps, underscores instead of spaces, and a state abbreviation suffix.
 
 ## Common Issues
 
 ### SLCSP Returns $0
+
 - Check county name format
-- Verify state has marketplace data
-- Try without county (uses state default)
+- Verify state has Marketplace pricing data
+- Try without county to use the state default
 
 ### Reform Not Applied
-- Ensure `use_reform=True` parameter
-- Check Reform.from_dict() imports correctly
-- Verify date format: "2026-01-01.2100-12-31"
 
-### Calculations Don't Match Notebook
+- Ensure `use_reform=True`
+- Check `Reform.from_dict()` imports correctly
+- Verify date ranges use the expected PolicyEngine parameter format
+
+### Calculations Do Not Match Notebook Values
+
 - Check PolicyEngine version
 - Verify household structure matches
 - Confirm income is split correctly for couples
@@ -93,25 +123,22 @@ PolicyEngine expects: `COUNTY_NAME_STATE`
 ## Adding Features
 
 ### New State-Specific Logic
-1. Add to `calculate_ptc()` function
-2. Test with multiple counties in that state
-3. Compare against PolicyEngine web app
+
+1. Add reusable logic under `aca_calc/`.
+2. Wire UI behavior through React components in `src/`.
+3. Test with multiple counties or districts in that state.
 
 ### UI Changes
-1. Modify `main()` function
-2. Update session state handling
-3. Test with various household types
+
+1. Keep navigation in `src/App.jsx`.
+2. Keep calculator state in the calculator components.
+3. Match existing component and CSS conventions.
 
 ### New Visualizations
-1. Add to or modify `create_chart()`
-2. Use Plotly for consistency
-3. Include hover tooltips
 
-## Performance Tips
-
-- Use `@st.cache_data` for expensive operations
-- Load counties.json once at startup
-- Minimize redundant PolicyEngine simulations
+1. Prefer existing Recharts/D3 patterns.
+2. Keep chart data preparation separate from visual rendering.
+3. Include labels and hover states that work on desktop and mobile.
 
 ## Questions?
 

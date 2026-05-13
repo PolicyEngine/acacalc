@@ -1,5 +1,5 @@
 """
-Verify that the reform is actually being applied in the app's calculate_ptc function
+Verify that the ACA reform parameters are applied by PolicyEngine.
 """
 from policyengine_us import Simulation
 from policyengine_core.reforms import Reform

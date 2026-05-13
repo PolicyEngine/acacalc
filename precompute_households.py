@@ -16,7 +16,7 @@ from policyengine_us import Simulation
 from aca_calc.calculations.household import build_household_situation
 from aca_calc.calculations.reforms import create_enhanced_ptc_reform, create_700fpl_reform
 
-# Preset households (same as in app.py)
+# Preset households used by the React app's household explorer.
 PRESET_HOUSEHOLDS = {
     "florida_family": {
         "name": "Florida Family of 4",
