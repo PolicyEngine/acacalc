@@ -26,6 +26,8 @@ export default defineConfig([
   },
   globalIgnores([
     '.next/**',
+    '.venv/**',
+    'venv/**',
     'out/**',
     'build/**',
     'coverage/**',

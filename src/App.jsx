@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import HealthBenefitsChart from "./components/HealthBenefitsChart";
 import ScrollSection from "./components/ScrollSection";
 import CliffComparisonTable from "./components/CliffComparisonTable";
 import ContributionScheduleTable from "./components/ContributionScheduleTable";
 import ContributionScheduleChart from "./components/ContributionScheduleChart";
 import HouseholdExplorer from "./components/HouseholdExplorer";
+import Calculator from "./components/Calculator";
 import LocalImpact from "./pages/LocalImpact";
-import { CALCULATOR_URL } from "./config/calculatorUrl";
 import "./App.css";
 
 // Import precomputed household data
@@ -167,10 +167,70 @@ Click below to explore how four different households are affected—with details
   },
 ];
 
+const PAGE_ROUTES = {
+  "": "main",
+  "overview": "main",
+  "households": "households",
+  "calculator": "calculator",
+  "local-impact": "local",
+  "local": "local",
+};
+
+const ROUTE_PAGES = {
+  main: "",
+  households: "households",
+  calculator: "calculator",
+  local: "local-impact",
+};
+
+function getPageFromHash() {
+  if (typeof window === "undefined") {
+    return "main";
+  }
+  const hash = window.location.hash.slice(1);
+  const [route] = hash.split("?");
+  return PAGE_ROUTES[route] || "main";
+}
+
+function isEmbedded() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get("embedded") === "true";
+}
+
 function App() {
   const [activeSection, setActiveSection] = useState(0);
-  const [currentPage, setCurrentPage] = useState("main");
+  const [currentPage, setCurrentPage] = useState(() => getPageFromHash());
+  const [embedded] = useState(() => isEmbedded());
   const chartRef = useRef(null);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentPage(getPageFromHash());
+    };
+
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  const navigateToPage = (page) => {
+    const route = ROUTE_PAGES[page];
+    const currentHash = window.location.hash.slice(1);
+    const [, queryString] = currentHash.split("?");
+
+    if (page === "calculator" && queryString) {
+      window.location.hash = `${route}?${queryString}`;
+    } else {
+      window.location.hash = route;
+    }
+    setCurrentPage(page);
+  };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
 
   // Get current section
   const currentSection = SECTIONS[activeSection] || SECTIONS[0];
@@ -232,7 +292,8 @@ function App() {
               index={index}
               isActive={activeSection === index}
               onInView={handleSectionInView}
-              onExploreHouseholds={() => setCurrentPage("households")}
+              onExploreHouseholds={() => navigateToPage("households")}
+              onOpenCalculator={() => navigateToPage("calculator")}
             />
           ))}
         </div>
@@ -245,7 +306,7 @@ function App() {
     <main className="households-page">
       <button
         className="back-button"
-        onClick={() => setCurrentPage("main")}
+        onClick={() => navigateToPage("main")}
       >
         ← Back to Overview
       </button>
@@ -254,55 +315,63 @@ function App() {
   );
 
   const renderLocalImpactPage = () => <LocalImpact />;
+  const renderCalculatorPage = () => (
+    <main className="calculator-page">
+      <Calculator />
+    </main>
+  );
 
   return (
-    <div className="app">
-      <header className="header">
-        <div className="header-content">
-          <h1>ACA Premium Tax Credits: 2025 vs 2026</h1>
-          <p className="subtitle">
-            Modeling how the scheduled expiration of IRA enhancements affects health insurance costs
-          </p>
-          <div className="page-tabs">
-            <button
-              className={`page-tab ${currentPage === "main" ? "active" : ""}`}
-              onClick={() => setCurrentPage("main")}
-            >
-              Overview
-            </button>
-            <button
-              className={`page-tab ${currentPage === "households" ? "active" : ""}`}
-              onClick={() => setCurrentPage("households")}
-            >
-              Explore Households
-            </button>
-            <button
-              className={`page-tab ${currentPage === "local" ? "active" : ""}`}
-              onClick={() => setCurrentPage("local")}
-            >
-              Local Impact
-            </button>
-            <a
-              className="page-tab"
-              href={CALCULATOR_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Full Calculator
-            </a>
+    <div className={`app ${embedded ? "embedded" : ""}`}>
+      {!embedded && (
+        <header className="header">
+          <div className="header-content">
+            <h1>ACA Premium Tax Credits: 2025 vs 2026</h1>
+            <p className="subtitle">
+              Modeling how the scheduled expiration of IRA enhancements affects health insurance costs
+            </p>
+            <div className="page-tabs">
+              <button
+                className={`page-tab ${currentPage === "main" ? "active" : ""}`}
+                onClick={() => navigateToPage("main")}
+              >
+                Overview
+              </button>
+              <button
+                className={`page-tab ${currentPage === "households" ? "active" : ""}`}
+                onClick={() => navigateToPage("households")}
+              >
+                Explore Households
+              </button>
+              <button
+                className={`page-tab ${currentPage === "calculator" ? "active" : ""}`}
+                onClick={() => navigateToPage("calculator")}
+              >
+                Calculator
+              </button>
+              <button
+                className={`page-tab ${currentPage === "local" ? "active" : ""}`}
+                onClick={() => navigateToPage("local")}
+              >
+                Local Impact
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {currentPage === "main" && renderMainPage()}
       {currentPage === "households" && renderHouseholdsPage()}
+      {currentPage === "calculator" && renderCalculatorPage()}
       {currentPage === "local" && renderLocalImpactPage()}
 
-      <footer className="footer">
-        <p>
-          Built by <a href="https://policyengine.org" target="_blank" rel="noopener noreferrer">PolicyEngine</a>
-        </p>
-      </footer>
+      {!embedded && (
+        <footer className="footer">
+          <p>
+            Built by <a href="https://policyengine.org" target="_blank" rel="noopener noreferrer">PolicyEngine</a>
+          </p>
+        </footer>
+      )}
     </div>
   );
 }

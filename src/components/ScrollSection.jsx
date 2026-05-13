@@ -2,10 +2,9 @@
 
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
-import { CALCULATOR_URL } from "../config/calculatorUrl";
 import "./ScrollSection.css";
 
-function ScrollSection({ section, index, isActive, onInView, onExploreHouseholds }) {
+function ScrollSection({ section, index, isActive, onInView, onExploreHouseholds, onOpenCalculator }) {
   const { ref, inView } = useInView({
     threshold: 0.5,
     rootMargin: "-20% 0px -40% 0px",
@@ -56,13 +55,13 @@ function ScrollSection({ section, index, isActive, onInView, onExploreHouseholds
           </svg>
         </button>
       )}
-      {section.showCalculatorLink && (
-        <a href={CALCULATOR_URL} target="_blank" rel="noopener noreferrer" className="calculator-button">
+      {section.showCalculatorLink && onOpenCalculator && (
+        <button type="button" onClick={onOpenCalculator} className="calculator-button">
           Enter Custom Household
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M5 12h14M12 5l7 7-7 7" />
           </svg>
-        </a>
+        </button>
       )}
     </div>
   );
