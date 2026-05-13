@@ -79,7 +79,7 @@ repointed to processed CMS Marketplace PUF files later.
 ├── app/                         # Next.js app shell
 ├── src/                         # React UI, pages, and client-side helpers
 │   ├── components/              # Calculator, charts, and shared components
-│   └── pages/LocalImpact.jsx    # Local impact page
+│   └── views/LocalImpact.jsx    # Local impact view
 ├── aca_calc/                    # Python calculation and data-access helpers
 │   ├── calculations/            # PolicyEngine household/PTC utilities
 │   └── data/                    # Small checked-in enrollment fixtures

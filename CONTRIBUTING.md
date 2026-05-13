@@ -11,7 +11,7 @@ The user-facing ACA calculator lives in the Next.js/React app:
 - `src/components/Calculator.jsx`: calculator orchestration
 - `src/components/CalculatorForm.jsx`: household input form
 - `src/components/CalculatorResults.jsx`: calculator outputs and charts
-- `src/pages/LocalImpact.jsx`: local enrollment and premium context
+- `src/views/LocalImpact.jsx`: local enrollment and premium context
 
 Run it locally with:
 

@@ -8,7 +8,7 @@ import ContributionScheduleTable from "./components/ContributionScheduleTable";
 import ContributionScheduleChart from "./components/ContributionScheduleChart";
 import HouseholdExplorer from "./components/HouseholdExplorer";
 import Calculator from "./components/Calculator";
-import LocalImpact from "./pages/LocalImpact";
+import LocalImpact from "./views/LocalImpact";
 import "./App.css";
 
 // Import precomputed household data
